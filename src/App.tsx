@@ -1,123 +1,120 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Search, MapPin, CheckCircle, MessageCircle, Stethoscope, Activity, Star, Info } from 'lucide-react';
+import { Search, MapPin, CheckCircle, MessageCircle, ExternalLink, Smartphone } from 'lucide-react';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Conexión a Supabase usando tus variables de entorno
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
-function App() {
+export default function App() {
   const [profesionales, setProfesionales] = useState([]);
   const [busqueda, setBusqueda] = useState("");
-  const [filtro, setFiltro] = useState("Todos");
-
-  const categorias = ["Todos", "Electricista", "Plomero", "Técnico PC", "Odontología", "Protesista Dental", "Fisioterapia"];
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    fetchProfesionales();
+    async function cargarDatos() {
+      const { data, error } = await supabase
+        .from('profesionales')
+        .select('*')
+        .order('es_premium', { ascending: false });
+      
+      if (error) console.error("Error cargando datos:", error);
+      if (data) setProfesionales(data);
+      setCargando(false);
+    }
+    cargarDatos();
   }, []);
 
-  async function fetchProfesionales() {
-    const { data, error } = await supabase
-      .from('profesionales')
-      .select('*')
-      .order('es_premium', { ascending: false });
-    if (!error) setProfesionales(data || []);
-  }
-
-  const filtrados = profesionales.filter(p => {
-    const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
-    const coincideFiltro = filtro === "Todos" || p.categoria === filtro;
-    return coincideBusqueda && coincideFiltro;
-  });
+  const filtrados = profesionales.filter(p => 
+    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    p.categoria.toLowerCase().includes(busqueda.toLowerCase()) ||
+    p.zona.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans text-gray-900">
-      <header className="bg-blue-800 text-white pt-12 pb-16 px-6 text-center shadow-2xl">
-        <h1 className="text-4xl font-black tracking-tight">Conexión Concepción</h1>
-        <p className="mt-2 text-blue-200 font-light italic">Encontrá lo que necesitás en la Perla del Norte</p>
-      </header>
-
-      <main className="max-w-4xl mx-auto p-4 -mt-10">
-        <div className="relative mb-6">
-          <input 
-            type="text"
-            placeholder="¿Qué servicio buscás hoy?"
-            className="w-full p-5 pl-14 rounded-2xl shadow-xl border-none focus:ring-4 focus:ring-blue-400 text-lg transition-all"
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
-          <Search className="absolute left-5 top-5 text-blue-500" size={24} />
-        </div>
-
-        {/* BANNER PUBLICITARIO */}
-        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-1 shadow-lg mb-8 group cursor-pointer">
-          <div className="bg-white rounded-[14px] p-4 flex items-center gap-4 transition-all group-hover:bg-yellow-50">
-            <div className="bg-orange-100 p-3 rounded-full"><Star className="text-orange-600 fill-current" size={28} /></div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold bg-orange-600 text-white px-2 py-0.5 rounded uppercase">Publicidad</span>
-                <h4 className="font-bold text-gray-800">Ferretería El Norte</h4>
-              </div>
-              <p className="text-sm text-gray-600">Todo para la construcción en Concepción.</p>
-            </div>
-            <button className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md">Ver Ofertas</button>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* Header con estilo moderno */}
+      <header className="bg-indigo-600 text-white pb-16 pt-12 px-6 shadow-xl">
+        <div className="max-w-5xl mx-auto text-center">
+          <h1 className="text-4xl font-black tracking-tight mb-2">CONEXIÓN CONCEPCIÓN</h1>
+          <p className="text-indigo-100 text-lg mb-8 font-medium">Encontrá los mejores servicios de la ciudad en un solo lugar</p>
+          
+          <div className="relative max-w-xl mx-auto">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={22} />
+            <input 
+              type="text"
+              placeholder="¿Qué estás buscando? (Ej: Técnico, Odontólogo...)"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl text-slate-800 shadow-2xl focus:ring-4 focus:ring-indigo-300 outline-none transition-all border-none text-lg"
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
           </div>
         </div>
+      </header>
 
-        <div className="flex gap-2 overflow-x-auto pb-6">
-          {categorias.map(cat => (
-            <button 
-              key={cat}
-              onClick={() => setFiltro(cat)}
-              className={`px-6 py-2.5 rounded-xl whitespace-nowrap text-sm font-bold transition-all shadow-sm border ${
-                filtro === cat ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-gray-500 border-gray-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+      <main className="max-w-5xl mx-auto p-6 -mt-10">
+        {cargando ? (
+          <div className="text-center py-20 text-indigo-600 font-bold text-xl">Cargando profesionales...</div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
+            {filtrados.length > 0 ? filtrados.map((p) => (
+              <div key={p.id} className={`group relative bg-white rounded-3xl p-6 shadow-sm border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${p.es_premium ? 'border-amber-400' : 'border-transparent'}`}>
+                
+                {p.es_premium && (
+                  <div className="absolute -top-4 right-6 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase shadow-lg tracking-widest">
+                    RECOMENDADO
+                  </div>
+                )}
 
-        <div className="grid gap-6">
-          {filtrados.length > 0 ? filtrados.map(p => (
-            <div key={p.id} className={`bg-white p-6 rounded-3xl shadow-sm border-t-4 ${p.es_premium ? 'border-orange-400' : 'border-blue-600'}`}>
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-2xl font-black text-gray-800">{p.nombre}</h3>
-                    {p.es_verificado && <CheckCircle className="text-blue-500 w-5 h-5 fill-current" />}
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl font-extrabold text-slate-800">{p.nombre}</h3>
+                    {p.es_verificado && <CheckCircle size={20} className="text-blue-500" fill="currentColor" />}
                   </div>
-                  <div className="flex items-center gap-4 mt-2">
-                    <span className="text-blue-700 font-extrabold text-xs uppercase bg-blue-50 px-2 py-1 rounded">
-                      {p.categoria}
-                    </span>
-                    <span className="flex items-center text-gray-400 text-xs"><MapPin size={14} className="mr-1" /> {p.zona}</span>
-                  </div>
+                  <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-lg uppercase tracking-wider">
+                    {p.categoria}
+                  </span>
+                </div>
+
+                <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                  {p.descripcion || "Servicio profesional garantizado en la zona de Concepción."}
+                </p>
+
+                <div className="flex items-center gap-2 text-slate-400 text-sm mb-8 font-medium">
+                  <MapPin size={18} className="text-rose-500" />
+                  <span>{p.zona} · Concepción, PY</span>
+                </div>
+
+                <div className="flex gap-3 mt-auto">
+                  <a 
+                    href={`https://wa.me/${p.whatsapp}`} 
+                    target="_blank" 
+                    className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-200 transition-all active:scale-95"
+                  >
+                    <MessageCircle size={20} /> WhatsApp
+                  </a>
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nombre + " " + p.zona + " Concepción Paraguay")}`} 
+                    target="_blank" 
+                    className="flex-1 flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-4 rounded-2xl font-bold transition-all active:scale-95"
+                  >
+                    <ExternalLink size={20} /> Ver Mapa
+                  </a>
                 </div>
               </div>
-              <p className="mt-4 text-gray-600 text-sm italic border-t pt-4">"{p.descripcion}"</p>
-              <a 
-                href={`https://wa.me/${p.whatsapp}`}
-                target="_blank"
-                className="mt-6 flex items-center justify-center gap-3 bg-green-500 text-white py-4 rounded-2xl font-black hover:bg-green-600 shadow-lg"
-              >
-                <MessageCircle size={22} /> CONTACTAR AHORA
-              </a>
-            </div>
-          )) : (
-            <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-300 text-gray-400">
-              <Info className="mx-auto mb-4" size={48} />
-              <p className="font-bold">No hay resultados para esta búsqueda.</p>
-            </div>
-          )}
-        </div>
+            )) : (
+              <div className="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200 text-slate-400 font-medium">
+                No encontramos resultados para tu búsqueda.
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
-      <footer className="mt-20 py-12 bg-gray-900 text-white text-center">
-        <p className="text-sm font-bold opacity-50 uppercase">© 2026 Conexión Concepción</p>
+      <footer className="py-12 text-center text-slate-400 text-sm">
+        <p>© 2026 Conexión Concepción · Desarrollado por Alan Campuzano</p>
       </footer>
     </div>
   );
 }
-
-export default App;
