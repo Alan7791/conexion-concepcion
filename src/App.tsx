@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Search, MapPin, CheckCircle, MessageCircle, ExternalLink, PlusCircle, ArrowLeft, Send, Trash2, ShieldCheck } from 'lucide-react';
+import { Search, MapPin, CheckCircle, MessageCircle, ExternalLink, PlusCircle, ArrowLeft, Send, Trash2, ShieldCheck, Zap } from 'lucide-react';
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -12,62 +12,67 @@ export default function App() {
   const [busqueda, setBusqueda] = useState("");
   const [verFormulario, setVerFormulario] = useState(false);
   const [esAdmin, setEsAdmin] = useState(false);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    // Detectar si el usuario entró con la "llave" secreta en la URL
     const params = new URLSearchParams(window.location.search);
-    if (params.get('admin') === 'concepcion2026') {
-      setEsAdmin(true);
-    }
+    if (params.get('admin') === 'concepcion2026') setEsAdmin(true);
     cargarDatos();
   }, []);
 
   async function cargarDatos() {
+    setCargando(true);
     const { data } = await supabase.from('profesionales').select('*').order('es_premium', { ascending: false });
     if (data) setProfesionales(data);
+    setCargando(false);
   }
-
-  // Funciones de Admin
-  const borrarProfesional = async (id) => {
-    if (confirm("¿Eliminar este registro permanentemente?")) {
-      await supabase.from('profesionales').delete().eq('id', id);
-      cargarDatos();
-    }
-  };
 
   const toggleVerificado = async (id, estado) => {
     await supabase.from('profesionales').update({ es_verificado: !estado }).eq('id', id);
     cargarDatos();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { error } = await supabase.from('profesionales').insert([
-      { ...nuevoPro, es_verificado: false, es_premium: false }
-    ]);
-    if (error) alert("Error: " + error.message);
-    else { alert("¡Publicado con éxito!"); setVerFormulario(false); cargarDatos(); }
+  const borrarProfesional = async (id) => {
+    if (confirm("¿Borrar definitivamente?")) {
+      await supabase.from('profesionales').delete().eq('id', id);
+      cargarDatos();
+    }
   };
 
   const [nuevoPro, setNuevoPro] = useState({ nombre: '', categoria: '', zona: '', descripcion: '', whatsapp: '' });
 
   const filtrados = profesionales.filter(p => 
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) || p.categoria.toLowerCase().includes(busqueda.toLowerCase())
+    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+    p.categoria.toLowerCase().includes(busqueda.toLowerCase()) ||
+    p.zona.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   if (verFormulario) {
     return (
-      <div className="min-h-screen bg-slate-50 p-6 flex flex-col items-center">
-        <button onClick={() => setVerFormulario(false)} className="self-start flex items-center gap-2 text-indigo-600 font-bold mb-8"><ArrowLeft size={20}/> Volver</button>
-        <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-xl">
-          <h2 className="text-2xl font-black mb-6 text-center text-slate-800">Inscribir mi Servicio</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input required placeholder="Nombre del Negocio" className="w-full p-4 bg-slate-100 rounded-xl outline-none" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} />
-            <input required placeholder="Categoría (Ej: Plomero)" className="w-full p-4 bg-slate-100 rounded-xl outline-none" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
-            <input required placeholder="Barrio / Zona" className="w-full p-4 bg-slate-100 rounded-xl outline-none" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} />
-            <input required placeholder="WhatsApp (595...)" className="w-full p-4 bg-slate-100 rounded-xl outline-none" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} />
-            <textarea placeholder="Descripción del servicio..." className="w-full p-4 bg-slate-100 rounded-xl h-24 outline-none" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
-            <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition-all">Enviar Registro</button>
+      <div className="min-h-screen bg-white p-6 flex flex-col items-center">
+        <button onClick={() => setVerFormulario(false)} className="self-start flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-bold mb-10 transition-colors">
+          <ArrowLeft size={20}/> Volver al inicio
+        </button>
+        <div className="w-full max-w-xl">
+          <h2 className="text-3xl font-black mb-2 text-slate-900">Registrá tu negocio</h2>
+          <p className="text-slate-500 mb-8 text-lg">Unite a la red de profesionales de Concepción.</p>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            const { error } = await supabase.from('profesionales').insert([nuevoPro]);
+            if (!error) { alert("¡Publicado!"); setVerFormulario(false); cargarDatos(); }
+          }} className="grid gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <input required placeholder="Nombre o Razón Social" className="p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-indigo-500 outline-none transition-all" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} />
+              <input required placeholder="Categoría (Ej: Electricista)" className="p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-indigo-500 outline-none transition-all" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <input required placeholder="Zona (Ej: Itacurubí)" className="p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-indigo-500 outline-none transition-all" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} />
+              <input required placeholder="WhatsApp (5959...)" className="p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-indigo-500 outline-none transition-all" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} />
+            </div>
+            <textarea placeholder="Contanos brevemente qué hacés..." className="p-4 bg-slate-50 border border-slate-200 rounded-2xl h-32 focus:border-indigo-500 outline-none transition-all" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
+            <button type="submit" className="bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+              <Send size={20}/> Enviar Registro
+            </button>
           </form>
         </div>
       </div>
@@ -75,49 +80,97 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-indigo-600 text-white pb-20 pt-12 px-6 text-center relative overflow-hidden">
-        <h1 className="text-4xl font-black mb-4 tracking-tight">CONEXIÓN CONCEPCIÓN</h1>
-        <div className="flex justify-center gap-4 mb-8">
-          <button onClick={() => setVerFormulario(true)} className="bg-white/20 px-6 py-2 rounded-full text-xs font-bold border border-white/30 flex items-center gap-2 hover:bg-white/30 transition-all">
-            <PlusCircle size={16}/> ¿Sos profesional? Inscribite
-          </button>
-          {esAdmin && (
-            <span className="bg-red-500 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse border border-white/20">
-              Modo Administrador
-            </span>
-          )}
-        </div>
-        <div className="relative max-w-xl mx-auto z-10">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-          <input type="text" placeholder="¿Qué servicio buscás en Concepción?" className="w-full pl-12 pr-4 py-4 rounded-2xl text-slate-800 shadow-2xl outline-none border-none text-lg" onChange={(e) => setBusqueda(e.target.value)} />
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto p-6 -mt-10 grid gap-6 md:grid-cols-2">
-        {filtrados.map(p => (
-          <div key={p.id} className={`bg-white rounded-3xl p-6 shadow-sm border-2 transition-all hover:shadow-xl ${p.es_premium ? 'border-amber-400' : 'border-transparent'}`}>
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-xl font-bold flex items-center gap-2 text-slate-800">{p.nombre} {p.es_verificado && <CheckCircle size={18} className="text-blue-500" fill="currentColor"/>}</h3>
-                <p className="text-xs font-black text-indigo-600 uppercase tracking-tighter">{p.categoria}</p>
-              </div>
-              {esAdmin && (
-                <div className="flex gap-2">
-                  <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors" title="Verificar"><ShieldCheck size={20}/></button>
-                  <button onClick={() => borrarProfesional(p.id)} className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors" title="Borrar"><Trash2 size={20}/></button>
-                </div>
-              )}
-            </div>
-            <p className="text-slate-500 text-sm mb-4 line-clamp-2">{p.descripcion || "Servicio profesional en Concepción."}</p>
-            <div className="flex items-center gap-2 text-slate-400 text-sm mb-6 font-medium"><MapPin size={16} className="text-rose-500" /> {p.zona}</div>
-            <div className="flex gap-3">
-              <a href={`https://wa.me/${p.whatsapp}`} target="_blank" className="flex-1 bg-green-500 text-white text-center py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-100 hover:bg-green-600 transition-all"><MessageCircle size={18}/> WhatsApp</a>
-              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nombre + " Concepcion")}`} target="_blank" className="flex-1 bg-slate-100 text-slate-700 text-center py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all"><ExternalLink size={18}/> Mapa</a>
+    <div className="min-h-screen bg-slate-50/50">
+      {/* HEADER PREMIUM */}
+      <header className="bg-white border-b border-slate-100 pt-12 pb-16 px-6 relative">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase mb-6">
+            <Zap size={14} fill="currentColor"/> Concepción · Paraguay
+          </div>
+          <h1 className="text-5xl font-black text-slate-900 tracking-tighter mb-4">Conexión<span className="text-indigo-600">Concepción</span></h1>
+          <p className="text-slate-500 text-lg mb-10 max-w-lg mx-auto">La guía inteligente para encontrar servicios de confianza en la ciudad.</p>
+          
+          <div className="relative max-w-2xl mx-auto group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+            <div className="relative bg-white rounded-2xl flex items-center p-2 shadow-2xl">
+              <Search className="ml-4 text-slate-400" size={24} />
+              <input 
+                type="text" 
+                placeholder="¿Qué servicio estás buscando?" 
+                className="w-full p-4 text-slate-800 outline-none text-lg font-medium" 
+                onChange={(e) => setBusqueda(e.target.value)} 
+              />
+              <button onClick={() => setVerFormulario(true)} className="hidden md:flex bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold items-center gap-2 hover:bg-indigo-700 transition-all">
+                <PlusCircle size={20}/> Unirse
+              </button>
             </div>
           </div>
-        ))}
+          
+          <button onClick={() => setVerFormulario(true)} className="md:hidden mt-6 w-full bg-white border border-slate-200 text-slate-700 p-4 rounded-2xl font-bold flex items-center justify-center gap-2">
+            <PlusCircle size={20}/> Registrar mi negocio
+          </button>
+        </div>
+
+        {esAdmin && (
+          <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg animate-pulse">
+            <ShieldCheck size={14}/> Admin Mode
+          </div>
+        )}
+      </header>
+
+      {/* LISTA DE PROFESIONALES */}
+      <main className="max-w-6xl mx-auto p-6 -mt-8">
+        {cargando ? (
+          <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filtrados.map(p => (
+              <div key={p.id} className={`group bg-white rounded-[2rem] p-7 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 relative overflow-hidden flex flex-col ${p.es_premium ? 'ring-2 ring-indigo-500 ring-offset-2' : ''}`}>
+                
+                {p.es_premium && <div className="absolute top-0 right-0 bg-indigo-500 text-white px-4 py-1 rounded-bl-2xl text-[10px] font-black uppercase tracking-tighter">Premium</div>}
+
+                <div className="mb-6">
+                  <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1 block">{p.categoria}</span>
+                  <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-2 group-hover:text-indigo-600 transition-colors">
+                    {p.nombre} 
+                    {p.es_verificado && <CheckCircle size={20} className="text-blue-500" fill="currentColor"/>}
+                  </h3>
+                </div>
+
+                <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow">{p.descripcion || "Profesional destacado de la ciudad de Concepción."}</p>
+
+                <div className="flex items-center gap-2 text-slate-400 text-xs font-bold mb-8 uppercase tracking-tight">
+                  <MapPin size={16} className="text-rose-500" /> {p.zona}
+                </div>
+
+                <div className="flex gap-2">
+                  <a href={`https://wa.me/${p.whatsapp}`} target="_blank" className="flex-[2] bg-green-500 hover:bg-green-600 text-white text-center py-4 rounded-2xl font-black text-sm transition-all shadow-lg shadow-green-100 flex items-center justify-center gap-2 active:scale-95">
+                    <MessageCircle size={18}/> WHATSAPP
+                  </a>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nombre + " Concepcion")}`} target="_blank" className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-600 text-center py-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center active:scale-95 border border-slate-100">
+                    <ExternalLink size={18}/>
+                  </a>
+                </div>
+
+                {esAdmin && (
+                  <div className="mt-6 pt-6 border-t border-slate-50 flex justify-between items-center">
+                    <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black transition-all ${p.es_verificado ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500 hover:bg-blue-500 hover:text-white'}`}>
+                      {p.es_verificado ? "VERIFICADO" : "VERIFICAR"}
+                    </button>
+                    <button onClick={() => borrarProfesional(p.id)} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                      <Trash2 size={18}/>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </main>
+
+      <footer className="py-20 text-center">
+        <p className="text-slate-400 text-xs font-bold tracking-widest uppercase">© 2026 Conexión Concepción · By Alan Campuzano</p>
+      </footer>
     </div>
   );
 }
