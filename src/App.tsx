@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Search, MapPin, CheckCircle, MessageCircle, ExternalLink, PlusCircle, ArrowLeft, Send, Trash2, ShieldCheck, Zap, Award } from 'lucide-react';
+// Added BadgeCheck to the imports
+import { Search, MapPin, BadgeCheck, MessageCircle, ExternalLink, PlusCircle, ArrowLeft, Send, Trash2, ShieldCheck, Zap, Award, Globe } from 'lucide-react';
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -77,7 +78,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] font-sans">
-      {/* HEADER CON LOGO MEJORADO */}
+      {/* HEADER CON LOGO */}
       <header className="bg-white pt-12 pb-20 px-6 relative overflow-hidden">
         {/* Decoración de fondo */}
         <div className="absolute top-[-10%] left-[-5%] w-64 h-64 bg-indigo-100 rounded-full blur-[100px] opacity-50"></div>
@@ -137,24 +138,23 @@ export default function App() {
             {filtrados.map(p => (
               <div key={p.id} className={`group bg-white rounded-[2.5rem] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(79,70,229,0.15)] hover:-translate-y-3 relative flex flex-col overflow-hidden ${p.es_premium ? 'ring-2 ring-indigo-500 ring-offset-4' : ''}`}>
                 
-                {/* INSIGNIA VERIFICADO PROFESIONAL */}
-                {p.es_verificado && (
-                  <div className="absolute top-6 right-8 flex items-center gap-1 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full shadow-sm group-hover:bg-blue-500 group-hover:border-blue-500 transition-all duration-500">
-                    <CheckCircle size={14} className="text-blue-500 group-hover:text-white transition-colors" fill="currentColor"/>
-                    <span className="text-[9px] font-black text-blue-600 group-hover:text-white uppercase tracking-tighter">Verificado</span>
-                  </div>
-                )}
-
-                <div className="mb-8">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-lg italic">
-                      {p.categoria}
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">
+                <div className="mb-8 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-lg italic">
+                          {p.categoria}
+                        </span>
+                    </div>
+                  
+                  {/* INSTAGRAM STYLE VERIFIED BADGE */}
+                  <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight flex items-center gap-1.5">
                     {p.nombre}
+                    {p.es_verificado && (
+                        // This uses BadgeCheck icon with sky-500 color (Instagram Blue) and fill
+                        <BadgeCheck size={20} className="text-sky-500 flex-shrink-0" fill="currentColor"/>
+                    )}
                   </h3>
-                  <div className="flex items-center gap-1.5 mt-2 text-slate-400 font-bold text-[11px] uppercase tracking-tight">
+                  
+                  <div className="flex items-center gap-1.5 mt-1 text-slate-400 font-bold text-[11px] uppercase tracking-tight">
                     <MapPin size={14} className="text-rose-500" /> {p.zona}
                   </div>
                 </div>
@@ -180,8 +180,9 @@ export default function App() {
                 {/* ADMIN TOOLS */}
                 {esAdmin && (
                   <div className="mt-8 pt-6 border-t border-dashed border-slate-200 flex justify-between">
-                    <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className={`p-2 rounded-xl transition-all ${p.es_verificado ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400 hover:bg-blue-500 hover:text-white'}`}>
-                      <Award size={20}/>
+                    <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className={`p-2 rounded-xl transition-all ${p.es_verificado ? 'bg-sky-100 text-sky-600' : 'bg-slate-100 text-slate-400 hover:bg-sky-500 hover:text-white'}`}>
+                      {/* Updated admin icon to use the same BadgeCheck */}
+                      <BadgeCheck size={20}/>
                     </button>
                     <button onClick={() => borrarProfesional(p.id)} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
                       <Trash2 size={20}/>
