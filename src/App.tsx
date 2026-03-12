@@ -19,7 +19,6 @@ export default function App() {
   const [esAdmin, setEsAdmin] = useState(false);
   const [cargando, setCargando] = useState(true);
 
-  // Categorías para los botones de acceso rápido
   const categoriasRapidas = [
     { nombre: "Técnicos", icono: <Zap size={18} /> },
     { nombre: "Construcción", icono: <Hammer size={18} /> },
@@ -51,7 +50,7 @@ export default function App() {
   };
 
   const borrarProfesional = async (id) => {
-    if (confirm("¿Confirmas que deseas eliminar este registro de forma permanente?")) {
+    if (confirm("¿Confirmas que deseas eliminar este registro?")) {
       await supabase.from('profesionales').delete().eq('id', id);
       cargarDatos();
     }
@@ -73,9 +72,9 @@ export default function App() {
         <button onClick={() => setVerFormulario(false)} className="self-start flex items-center gap-2 text-slate-400 hover:text-indigo-600 font-bold mb-10 transition-all uppercase text-xs tracking-widest">
           <ArrowLeft size={18}/> Volver al Inicio
         </button>
-        <div className="w-full max-w-xl bg-slate-50/50 p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-          <h2 className="text-4xl font-black mb-2 text-slate-900 tracking-tighter">Registrá tu negocio</h2>
-          <p className="text-slate-500 mb-8 font-medium">Formá parte de la red profesional más importante de Concepción.</p>
+        <div className="w-full max-w-xl bg-slate-50/50 p-10 rounded-[3rem] border border-slate-100">
+          <h2 className="text-4xl font-black mb-2 text-slate-900 tracking-tighter text-center">Registrá tu negocio</h2>
+          <p className="text-slate-500 mb-8 font-medium text-center">Sumate a la red profesional de Concepción.</p>
           <form onSubmit={async (e) => {
             e.preventDefault();
             const { error } = await supabase.from('profesionales').insert([nuevoPro]);
@@ -85,15 +84,15 @@ export default function App() {
               cargarDatos(); 
             }
           }} className="grid gap-4">
-            <input required placeholder="Nombre del Negocio" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} />
-            <input required placeholder="Categoría (Ej: Electricista)" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
+            <input required placeholder="Nombre Comercial" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} />
+            <input required placeholder="Categoría" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
             <div className="grid grid-cols-2 gap-4">
                 <input required placeholder="Barrio" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} />
                 <input required placeholder="WhatsApp" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} />
             </div>
-            <textarea placeholder="Breve descripción de tus servicios..." className="p-5 bg-white border border-slate-200 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
-            <button type="submit" className="bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 mt-4 tracking-tight">
-              <Send size={22}/> UNIRME A LA RED
+            <textarea placeholder="Descripción..." className="p-5 bg-white border border-slate-200 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
+            <button type="submit" className="bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 mt-4">
+              <Send size={22}/> PUBLICAR NEGOCIO
             </button>
           </form>
         </div>
@@ -103,27 +102,31 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FC] font-sans text-slate-900">
-      {/* HEADER DE MARCA */}
+      
+      {/* HEADER CON ISOTIPO CC */}
       <header className="bg-white pt-16 pb-12 px-6 border-b border-slate-100 relative overflow-hidden">
         <div className="max-w-5xl mx-auto text-center relative z-10">
           
-          {/* Logo Badge */}
+          {/* NUEVO LOGO CC INTERACTIVO */}
           <div className="flex justify-center mb-8">
-            <div className="flex items-center gap-3 bg-slate-900 px-6 py-3 rounded-[1.4rem] shadow-2xl shadow-slate-200 transform hover:scale-105 transition-all">
-              <Zap className="text-indigo-500" size={24} fill="currentColor" />
-              <div className="h-5 w-[1px] bg-slate-700"></div>
-              <span className="text-white font-black tracking-[0.4em] text-[10px] uppercase">Conexión</span>
-            </div>
+            <button 
+              onClick={() => { setBusqueda(""); window.scrollTo({top: 0, behavior: 'smooth'}); }} 
+              className="flex items-center justify-center bg-slate-900 w-16 h-16 rounded-2xl shadow-2xl shadow-indigo-100 transform hover:rotate-6 transition-all active:scale-90 group"
+              title="Volver al inicio"
+            >
+              <span className="text-white font-black text-2xl tracking-tighter">
+                C<span className="text-indigo-500 transition-colors group-hover:text-indigo-400">C</span>
+              </span>
+            </button>
           </div>
 
           <h1 className="text-6xl md:text-7xl font-black tracking-tighter mb-4 leading-none">
             Conexión<span className="text-indigo-600">Concepción</span>
           </h1>
           <p className="text-slate-400 text-xl mb-12 max-w-lg mx-auto font-medium leading-relaxed">
-            La plataforma definitiva para encontrar servicios profesionales en la Perla del Norte.
+            La red profesional más confiable de la Perla del Norte.
           </p>
           
-          {/* BUSCADOR ESTILIZADO */}
           <div className="relative max-w-2xl mx-auto mb-12 group">
             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-[2.5rem] blur opacity-15 group-hover:opacity-30 transition duration-700"></div>
             <div className="relative bg-white rounded-[2.2rem] flex items-center p-3 shadow-2xl border border-slate-50">
@@ -136,20 +139,20 @@ export default function App() {
                 onChange={(e) => setBusqueda(e.target.value)} 
               />
               {busqueda && (
-                <button onClick={() => setBusqueda("")} className="mr-4 text-xs font-black text-indigo-600 uppercase tracking-widest">Limpiar</button>
+                <button onClick={() => setBusqueda("")} className="mr-4 text-xs font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800">Limpiar</button>
               )}
             </div>
           </div>
 
-          {/* CATEGORÍAS RÁPIDAS (ACCESO RÁPIDO) */}
+          {/* CATEGORÍAS RÁPIDAS */}
           <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
             {categoriasRapidas.map((cat, idx) => (
               <button 
                 key={idx} 
                 onClick={() => setBusqueda(cat.nombre)}
-                className="flex items-center gap-2 bg-white border border-slate-100 px-6 py-4 rounded-[1.3rem] shadow-sm hover:shadow-xl hover:border-indigo-100 hover:text-indigo-600 transition-all active:scale-95 group"
+                className={`flex items-center gap-2 bg-white border border-slate-100 px-6 py-4 rounded-[1.3rem] shadow-sm hover:shadow-xl hover:border-indigo-100 hover:text-indigo-600 transition-all active:scale-95 group ${busqueda === cat.nombre ? 'border-indigo-500 ring-1 ring-indigo-500 text-indigo-600' : ''}`}
               >
-                <span className="text-slate-300 group-hover:text-indigo-500 transition-colors">{cat.icono}</span>
+                <span className={`transition-colors ${busqueda === cat.nombre ? 'text-indigo-500' : 'text-slate-300 group-hover:text-indigo-500'}`}>{cat.icono}</span>
                 <span className="text-[11px] font-black uppercase tracking-wider">{cat.nombre}</span>
               </button>
             ))}
@@ -157,26 +160,26 @@ export default function App() {
         </div>
 
         {esAdmin && (
-          <div className="absolute top-6 right-6 bg-slate-900 text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 shadow-2xl border border-white/10">
+          <div className="absolute top-6 right-6 bg-slate-900 text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 shadow-2xl border border-white/10 ring-4 ring-indigo-50">
             <ShieldCheck size={16} className="text-indigo-400" /> ADMIN ACCESS
           </div>
         )}
       </header>
 
-      {/* LISTADO DE PROFESIONALES */}
+      {/* RESULTADOS */}
       <main className="max-w-7xl mx-auto p-8 relative z-20">
         {cargando ? (
-          <div className="flex justify-center py-40 animate-pulse text-indigo-600 font-black tracking-widest text-xs uppercase">Cargando Red...</div>
+          <div className="flex justify-center py-40"><div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-600"></div></div>
         ) : (
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
             {filtrados.map(p => (
               <div key={p.id} className="group bg-white rounded-[3rem] p-10 shadow-[0_15px_50px_-15px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-500 hover:shadow-[0_40px_100px_-20px_rgba(79,70,229,0.18)] hover:-translate-y-4 flex flex-col relative overflow-hidden">
                 
-                {/* VERIFICADO TIPO INSTAGRAM */}
+                {/* VERIFICADO ESTILO INSTAGRAM */}
                 {p.es_verificado && (
                   <div className="absolute top-10 right-10 flex items-center gap-1.5 bg-sky-50 px-4 py-2 rounded-full border border-sky-100 group-hover:bg-sky-500 transition-all duration-500 group-hover:border-sky-500">
                     <BadgeCheck size={18} className="text-sky-500 group-hover:text-white transition-colors" fill="currentColor"/>
-                    <span className="text-[10px] font-black text-sky-600 group-hover:text-white uppercase tracking-tighter">Oficial</span>
+                    <span className="text-[10px] font-black text-sky-600 group-hover:text-white uppercase tracking-tighter italic">Oficial</span>
                   </div>
                 )}
 
@@ -192,11 +195,11 @@ export default function App() {
                   </div>
                 </div>
 
-                <p className="text-slate-500 text-[15px] leading-relaxed mb-12 flex-grow font-medium italic">
-                  "{p.descripcion || `Servicio de alta calidad en ${p.categoria} para toda la zona de Concepción.`}"
+                <p className="text-slate-500 text-[15px] leading-relaxed mb-12 flex-grow font-medium">
+                  "{p.descripcion || `Profesional destacado brindando atención personalizada en toda la ciudad.`}"
                 </p>
 
-                {/* BOTONES DE ACCIÓN */}
+                {/* WHATSAPP PROFESIONAL */}
                 <div className="flex gap-4 mt-auto">
                   <a 
                     href={`https://wa.me/${p.whatsapp}?text=${encodeURIComponent(`¡Hola! Te encontré en Conexión Concepción y quería consultar por tus servicios como ${p.categoria}.`)}`} 
@@ -214,11 +217,10 @@ export default function App() {
                   </a>
                 </div>
 
-                {/* PANEL DE ADMIN INTEGRADO */}
                 {esAdmin && (
                   <div className="mt-10 pt-8 border-t border-slate-100 flex justify-between items-center bg-slate-50/50 -mx-10 -mb-10 px-10 pb-10 rounded-b-[3rem]">
                     <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className={`px-6 py-3 rounded-2xl text-[10px] font-black transition-all ${p.es_verificado ? 'bg-sky-600 text-white shadow-lg shadow-sky-100' : 'bg-white text-slate-500 border border-slate-200 hover:bg-sky-50'}`}>
-                      {p.es_verificado ? "VERIFICADO" : "MARK OFFICIAL"}
+                      {p.es_verificado ? "VERIFICADO" : "HACER OFICIAL"}
                     </button>
                     <button onClick={() => borrarProfesional(p.id)} className="p-4 bg-white text-red-500 border border-red-50 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm">
                       <Trash2 size={20}/>
@@ -231,17 +233,6 @@ export default function App() {
         )}
       </main>
 
-      {/* FOOTER */}
       <footer className="py-32 text-center">
         <button onClick={() => setVerFormulario(true)} className="mb-12 group">
-            <div className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 group-hover:bg-indigo-700 transition-all transform group-hover:scale-105">
-                Publicar mi Negocio Gratis
-            </div>
-        </button>
-        <div className="w-20 h-[2px] bg-slate-200 mx-auto rounded-full mb-12 opacity-50"></div>
-        <p className="text-slate-300 text-[11px] font-black uppercase tracking-[0.6em] mb-4">Concepción · Paraguay</p>
-        <p className="text-slate-200 text-[9px] font-bold uppercase tracking-[0.2em]">© 2026 Developed by Alan Campuzano</p>
-      </footer>
-    </div>
-  );
-}
+            <div className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text
