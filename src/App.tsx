@@ -4,7 +4,7 @@ import {
   Search, MapPin, BadgeCheck, MessageCircle, 
   PlusCircle, ArrowLeft, Send, Trash2, 
   ShieldCheck, Zap, Hammer, Car, 
-  Utensils, Droplets, Laptop, Globe 
+  Utensils, Droplets, Laptop 
 } from 'lucide-react';
 
 const supabase = createClient(
@@ -103,11 +103,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F8F9FC] font-sans text-slate-900">
       
-      {/* HEADER CON ISOTIPO CC */}
-      <header className="bg-white pt-16 pb-12 px-6 border-b border-slate-100 relative overflow-hidden">
-        <div className="max-w-5xl mx-auto text-center relative z-10">
+      {/* HEADER CORREGIDO CON LOGO "CC" */}
+      <header className="bg-white pt-16 pb-12 px-6 border-b border-slate-100 relative overflow-hidden text-center">
+        <div className="max-w-5xl mx-auto relative z-10">
           
-          {/* NUEVO LOGO CC INTERACTIVO */}
+          {/* LOGO CC - SUSTITUYE A LA PALABRA "CONEXION" EXTRA */}
           <div className="flex justify-center mb-8">
             <button 
               onClick={() => { setBusqueda(""); window.scrollTo({top: 0, behavior: 'smooth'}); }} 
@@ -120,7 +120,7 @@ export default function App() {
             </button>
           </div>
 
-          <h1 className="text-6xl md:text-7xl font-black tracking-tighter mb-4 leading-none">
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none">
             Conexión<span className="text-indigo-600">Concepción</span>
           </h1>
           <p className="text-slate-400 text-xl mb-12 max-w-lg mx-auto font-medium leading-relaxed">
@@ -135,16 +135,15 @@ export default function App() {
                 type="text" 
                 value={busqueda}
                 placeholder="¿Qué servicio estás buscando?" 
-                className="w-full p-4 text-slate-800 outline-none text-xl font-bold bg-transparent placeholder:text-slate-200" 
+                className="w-full p-4 text-slate-800 outline-none text-xl font-bold bg-transparent" 
                 onChange={(e) => setBusqueda(e.target.value)} 
               />
               {busqueda && (
-                <button onClick={() => setBusqueda("")} className="mr-4 text-xs font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800">Limpiar</button>
+                <button onClick={() => setBusqueda("")} className="mr-4 text-xs font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors">Limpiar</button>
               )}
             </div>
           </div>
 
-          {/* CATEGORÍAS RÁPIDAS */}
           <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
             {categoriasRapidas.map((cat, idx) => (
               <button 
@@ -166,18 +165,16 @@ export default function App() {
         )}
       </header>
 
-      {/* RESULTADOS */}
       <main className="max-w-7xl mx-auto p-8 relative z-20">
         {cargando ? (
-          <div className="flex justify-center py-40"><div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-600"></div></div>
+          <div className="flex justify-center py-40 animate-pulse text-indigo-600 font-black tracking-widest text-xs uppercase">Conectando...</div>
         ) : (
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
             {filtrados.map(p => (
               <div key={p.id} className="group bg-white rounded-[3rem] p-10 shadow-[0_15px_50px_-15px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-500 hover:shadow-[0_40px_100px_-20px_rgba(79,70,229,0.18)] hover:-translate-y-4 flex flex-col relative overflow-hidden">
                 
-                {/* VERIFICADO ESTILO INSTAGRAM */}
                 {p.es_verificado && (
-                  <div className="absolute top-10 right-10 flex items-center gap-1.5 bg-sky-50 px-4 py-2 rounded-full border border-sky-100 group-hover:bg-sky-500 transition-all duration-500 group-hover:border-sky-500">
+                  <div className="absolute top-10 right-10 flex items-center gap-1.5 bg-sky-50 px-4 py-2 rounded-full border border-sky-100 group-hover:bg-sky-500 transition-all duration-500 group-hover:border-sky-500 shadow-sm">
                     <BadgeCheck size={18} className="text-sky-500 group-hover:text-white transition-colors" fill="currentColor"/>
                     <span className="text-[10px] font-black text-sky-600 group-hover:text-white uppercase tracking-tighter italic">Oficial</span>
                   </div>
@@ -196,10 +193,9 @@ export default function App() {
                 </div>
 
                 <p className="text-slate-500 text-[15px] leading-relaxed mb-12 flex-grow font-medium">
-                  "{p.descripcion || `Profesional destacado brindando atención personalizada en toda la ciudad.`}"
+                  "{p.descripcion || `Profesional destacado en ${p.categoria} sirviendo a toda la comunidad de Concepción.`}"
                 </p>
 
-                {/* WHATSAPP PROFESIONAL */}
                 <div className="flex gap-4 mt-auto">
                   <a 
                     href={`https://wa.me/${p.whatsapp}?text=${encodeURIComponent(`¡Hola! Te encontré en Conexión Concepción y quería consultar por tus servicios como ${p.categoria}.`)}`} 
@@ -219,7 +215,7 @@ export default function App() {
 
                 {esAdmin && (
                   <div className="mt-10 pt-8 border-t border-slate-100 flex justify-between items-center bg-slate-50/50 -mx-10 -mb-10 px-10 pb-10 rounded-b-[3rem]">
-                    <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className={`px-6 py-3 rounded-2xl text-[10px] font-black transition-all ${p.es_verificado ? 'bg-sky-600 text-white shadow-lg shadow-sky-100' : 'bg-white text-slate-500 border border-slate-200 hover:bg-sky-50'}`}>
+                    <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className={`px-6 py-3 rounded-2xl text-[10px] font-black transition-all ${p.es_verificado ? 'bg-sky-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200 hover:bg-sky-50'}`}>
                       {p.es_verificado ? "VERIFICADO" : "HACER OFICIAL"}
                     </button>
                     <button onClick={() => borrarProfesional(p.id)} className="p-4 bg-white text-red-500 border border-red-50 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm">
@@ -235,4 +231,14 @@ export default function App() {
 
       <footer className="py-32 text-center">
         <button onClick={() => setVerFormulario(true)} className="mb-12 group">
-            <div className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text
+            <div className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all transform hover:scale-105">
+                REGISTRAR MI NEGOCIO GRATIS
+            </div>
+        </button>
+        <div className="w-20 h-[2px] bg-slate-200 mx-auto rounded-full mb-12 opacity-50"></div>
+        <p className="text-slate-300 text-[11px] font-black uppercase tracking-[0.6em] mb-4">Concepción · Paraguay</p>
+        <p className="text-slate-200 text-[9px] font-bold uppercase tracking-[0.2em]">© 2026 Developed by Alan Campuzano</p>
+      </footer>
+    </div>
+  );
+}
