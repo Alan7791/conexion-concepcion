@@ -19,13 +19,8 @@ export default function App() {
   const [esAdmin, setEsAdmin] = useState(false);
   const [cargando, setCargando] = useState(true);
   
-  // SE ELIMINÓ 'link_maps' PARA EVITAR EL ERROR DE COLUMNA INEXISTENTE
   const [nuevoPro, setNuevoPro] = useState({ 
-    nombre: '', 
-    categoria: '', 
-    zona: '', 
-    descripcion: '', 
-    whatsapp: ''
+    nombre: '', categoria: '', zona: '', descripcion: '', whatsapp: '', link_maps: '' 
   });
 
   const categoriasRapidas = [
@@ -70,18 +65,14 @@ export default function App() {
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
-    
-    // Solo enviamos los campos que existen en tu base de datos
-    const { error } = await supabase
-      .from('profesionales')
-      .insert([nuevoPro]);
+    const { error } = await supabase.from('profesionales').insert([nuevoPro]);
 
     if (error) {
       alert("Error al publicar: " + error.message);
     } else {
       alert("¡Publicado con éxito!");
       setVerFormulario(false);
-      setNuevoPro({ nombre: '', categoria: '', zona: '', descripcion: '', whatsapp: '' });
+      setNuevoPro({ nombre: '', categoria: '', zona: '', descripcion: '', whatsapp: '', link_maps: '' });
       cargarDatos();
     }
   };
@@ -100,16 +91,23 @@ export default function App() {
         </button>
         <div className="w-full max-w-xl bg-slate-50/50 p-10 rounded-[3rem] border border-slate-100 shadow-2xl">
           <h2 className="text-4xl font-black mb-2 text-slate-900 tracking-tighter text-center italic">Nueva Conexión</h2>
-          <p className="text-slate-500 mb-8 font-medium text-center uppercase text-[10px] tracking-[0.3em]">Completa los datos</p>
+          <p className="text-slate-500 mb-8 font-medium text-center uppercase text-[10px] tracking-[0.3em]">Completa los datos de tu negocio</p>
           
           <form onSubmit={manejarEnvio} className="grid gap-4">
             <input required placeholder="Nombre Comercial" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} />
-            <input required placeholder="Categoría" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
+            <input required placeholder="Categoría (Ej: Plomero, Abogado)" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
             <div className="grid grid-cols-2 gap-4">
                 <input required placeholder="Barrio" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} />
                 <input required placeholder="WhatsApp" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} />
             </div>
-            <textarea required placeholder="Descripción..." className="p-5 bg-white border border-slate-200 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-none" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
+            
+            {/* NUEVO CAMPO DE MAPA */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-black ml-4 uppercase text-slate-400 tracking-widest">Ubicación (Opcional)</label>
+              <input placeholder="Pegá aquí el link de Google Maps" className="w-full p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
+            </div>
+
+            <textarea required placeholder="Descripción de servicios..." className="p-5 bg-white border border-slate-200 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-none" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
             <button type="submit" className="bg-indigo-600 text-white py-6 rounded-[2rem] font-black text-sm shadow-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 mt-4">
               <Send size={20}/> PUBLICAR AHORA
             </button>
@@ -183,8 +181,13 @@ export default function App() {
                   <a href={`https://wa.me/${p.whatsapp}`} target="_blank" className="flex-[4] bg-[#25D366] hover:bg-[#128C7E] text-white py-5 rounded-[1.8rem] font-black text-[10px] transition-all shadow-xl shadow-green-100 flex items-center justify-center gap-3 active:scale-95 tracking-widest uppercase">
                     <MessageCircle size={22} fill="currentColor" /> WhatsApp
                   </a>
-                  {/* BOTÓN MAPS SIMPLIFICADO SIN USAR LA COLUMNA link_maps */}
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nombre + " " + p.zona + " Concepcion")}`} target="_blank" className="flex-1 bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-400 py-5 rounded-[1.8rem] transition-all flex items-center justify-center border border-slate-100 active:scale-95">
+                  {/* LÓGICA DE BOTÓN DE MAPA MEJORADA */}
+                  <a 
+                    href={p.link_maps ? p.link_maps : `https://www.google.com/maps/search/${encodeURIComponent(p.nombre + " " + p.zona + " Concepcion")}`} 
+                    target="_blank" 
+                    className={`flex-1 py-5 rounded-[1.8rem] transition-all flex items-center justify-center border active:scale-95 ${p.link_maps ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                    title={p.link_maps ? "Ver ubicación exacta" : "Buscar en el mapa"}
+                  >
                     <MapPin size={24} />
                   </a>
                 </div>
