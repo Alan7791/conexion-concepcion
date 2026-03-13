@@ -1,75 +1,70 @@
-import { useState } from "react";
-import { Search, MessageCircle, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client"; // La conexión que ya tenés
+import React, { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const App = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [busqueda, setBusqueda] = useState("");
 
+  // Lista de negocios - Podés editarlos acá mismo
   const negocios = [
-    { id: 1, nombre: "Gomería El Rayo", categoria: "Mecánica", telefono: "595981000000", zona: "Centro" },
-    { id: 2, nombre: "Restaurante Norteño", categoria: "Gastronomía", telefono: "595982000000", zona: "Terminal" }
+    { id: 1, nombre: "Gomería El Rayo", rubro: "Mecánica", zona: "Centro", tel: "595981000000" },
+    { id: 2, nombre: "Restaurante Norteño", rubro: "Gastronomía", zona: "Terminal", tel: "595982000000" }
   ];
 
-  // Función de registro corregida para tu proyecto
-  const handleContact = async (nombre: string, telefono: string) => {
-    // Registramos en silencio en Supabase
-    await supabase
-      .from('registro_clics')
-      .insert([{ nombre_negocio: nombre, tipo_accion: 'whatsapp' }]);
-    
-    // Abrimos WhatsApp
-    window.open(`https://wa.me/${telefono}`, '_blank');
+  // La función que registra el clic para tus métricas
+  const conectarWhatsApp = async (nombre: string, telefono: string) => {
+    try {
+      await supabase
+        .from('registro_clics')
+        .insert([{ nombre_negocio: nombre, tipo_accion: 'whatsapp' }]);
+    } catch (e) {
+      console.error("Error en Supabase:", e);
+    } finally {
+      window.open(`https://wa.me/${telefono}`, '_blank');
+    }
   };
 
-  const filtered = negocios.filter(n =>
-    n.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtrados = negocios.filter(n => 
+    n.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    n.rubro.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tighter text-primary">Conexión Concepción</h1>
-          <p className="text-muted-foreground">Directorio de servicios locales</p>
+    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '20px', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <h1 style={{ color: '#1e40af', fontSize: '2rem', marginBottom: '5px' }}>Conexión Concepción</h1>
+          <p style={{ color: '#6b7280' }}>Servicios en la Perla del Norte</p>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar servicios en Concepción..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+        <input 
+          type="text" 
+          placeholder="¿Qué servicio buscas hoy?" 
+          style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', marginBottom: '20px', fontSize: '16px' }}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
 
-        <div className="grid gap-4">
-          {filtered.map((negocio) => (
-            <Card key={negocio.id} className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl font-bold">{negocio.nombre}</CardTitle>
-                <Badge variant="secondary">{negocio.categoria}</Badge>
-              </CardHeader>
-              <CardContent className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <MapPin className="mr-1 h-4 w-4" />
-                  {negocio.zona}
-                </div>
-                <Button 
-                  onClick={() => handleContact(negocio.nombre, negocio.telefono)}
-                  className="bg-green-600 hover:bg-green-700 w-full md:w-auto"
-                >
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  WhatsApp
-                </Button>
-              </CardContent>
-            </Card>
+        <div style={{ display: 'grid', gap: '15px' }}>
+          {filtrados.map(n => (
+            <div key={n.id} style={{ backgroundColor: 'white', padding: '15px', borderRadius: '15px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#1e40af', textTransform: 'uppercase' }}>{n.rubro}</span>
+                <h3 style={{ margin: '5px 0', fontSize: '18px' }}>{n.nombre}</h3>
+                <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>📍 {n.zona}</p>
+              </div>
+              <button 
+                onClick={() => conectarWhatsApp(n.nombre, n.tel)}
+                style={{ backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '12px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+              >
+                WhatsApp
+              </button>
+            </div>
           ))}
         </div>
+
+        <footer style={{ textAlign: 'center', marginTop: '40px', color: '#9ca3af', fontSize: '12px' }}>
+          Hecho por Alan Campuzano • 2026
+        </footer>
       </div>
     </div>
   );
