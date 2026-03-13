@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { 
   Search, MapPin, BadgeCheck, MessageCircle, 
-  PlusCircle, ArrowLeft, Send, Trash2, 
+  ArrowLeft, Send, Trash2, 
   ShieldCheck, Zap, Hammer, Car, 
   Utensils, Droplets, Laptop 
 } from 'lucide-react';
@@ -47,6 +47,16 @@ export default function App() {
     setCargando(false);
   }
 
+  // FUNCIÓN AJUSTADA A TU TABLA 'registro_clics'
+  const registrarClic = async (nombreNegocio) => {
+    await supabase
+      .from('registro_clics')
+      .insert([{ 
+        nombre_negocio: nombreNegocio, 
+        tipo_accion: 'WhatsApp Click' 
+      }]);
+  };
+
   const toggleVerificado = async (id, estadoActual) => {
     const { error } = await supabase
       .from('profesionales')
@@ -65,9 +75,8 @@ export default function App() {
   const manejarEnvio = async (e) => {
     e.preventDefault();
     const { error } = await supabase.from('profesionales').insert([nuevoPro]);
-
     if (error) {
-      alert("Error al publicar: " + error.message);
+      alert("Error: " + error.message);
     } else {
       alert("¡Publicado con éxito!");
       setVerFormulario(false);
@@ -86,23 +95,18 @@ export default function App() {
     return (
       <div className="min-h-screen bg-white p-6 flex flex-col items-center animate-in fade-in duration-500">
         <button onClick={() => setVerFormulario(false)} className="self-start flex items-center gap-2 text-slate-400 hover:text-indigo-600 font-bold mb-10 transition-all uppercase text-xs tracking-widest">
-          <ArrowLeft size={18}/> Volver al Inicio
+          <ArrowLeft size={18}/> Cancelar
         </button>
         <div className="w-full max-w-xl bg-slate-50/50 p-10 rounded-[3rem] border border-slate-100 shadow-2xl">
           <h2 className="text-4xl font-black mb-2 text-slate-900 tracking-tighter text-center italic">Nueva Conexión</h2>
-          <p className="text-slate-500 mb-8 font-medium text-center uppercase text-[10px] tracking-[0.3em]">Completa los datos de tu negocio</p>
-          
-          <form onSubmit={manejarEnvio} className="grid gap-4">
+          <form onSubmit={manejarEnvio} className="grid gap-4 mt-8">
             <input required placeholder="Nombre Comercial" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} />
-            <input required placeholder="Categoría" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
+            <input required placeholder="Rubro" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
             <div className="grid grid-cols-2 gap-4">
                 <input required placeholder="Barrio" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} />
                 <input required placeholder="WhatsApp" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black ml-4 uppercase text-slate-400 tracking-widest">Ubicación (Opcional)</label>
-              <input placeholder="Link de Google Maps" className="w-full p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
-            </div>
+            <input placeholder="Link de Google Maps (Opcional)" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
             <textarea required placeholder="Descripción..." className="p-5 bg-white border border-slate-200 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-none" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
             <button type="submit" className="bg-indigo-600 text-white py-6 rounded-[2rem] font-black text-sm shadow-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 mt-4">
               <Send size={20}/> PUBLICAR AHORA
@@ -123,17 +127,17 @@ export default function App() {
         )}
         <div className="max-w-5xl mx-auto">
           <div className="flex justify-center mb-8">
-            <button onClick={() => { setBusqueda(""); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex items-center justify-center bg-slate-900 w-16 h-16 rounded-2xl shadow-2xl transform hover:rotate-6 transition-all active:scale-95 group">
+            <div className="flex items-center justify-center bg-slate-900 w-16 h-16 rounded-2xl shadow-2xl transform hover:rotate-6 transition-all cursor-pointer" onClick={() => { setBusqueda(""); window.scrollTo({top: 0, behavior: 'smooth'}); }}>
               <span className="text-white font-black text-2xl tracking-tighter">C<span className="text-indigo-500">C</span></span>
-            </button>
+            </div>
           </div>
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase">Conexión<span className="text-indigo-600">Concepción</span></h1>
-          <p className="text-slate-400 text-xl mb-12 font-medium italic">La red profesional de la Perla del Norte.</p>
+          <p className="text-slate-400 text-xl mb-12 font-medium italic">Encontrá lo que buscás en la Perla del Norte.</p>
           
-          <div className="relative max-w-2xl mx-auto mb-12 group">
+          <div className="relative max-w-2xl mx-auto mb-12">
             <div className="relative bg-white rounded-[2.2rem] flex items-center p-3 shadow-2xl border border-slate-50 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
               <Search className="ml-6 text-slate-300" size={26} />
-              <input type="text" value={busqueda} placeholder="¿Qué estás buscando?" className="w-full p-4 text-slate-800 outline-none text-xl font-bold bg-transparent" onChange={(e) => setBusqueda(e.target.value)} />
+              <input type="text" value={busqueda} placeholder="Ej: Electricista, Pizza, Itacurubí..." className="w-full p-4 text-slate-800 outline-none text-xl font-bold bg-transparent" onChange={(e) => setBusqueda(e.target.value)} />
             </div>
           </div>
 
@@ -150,7 +154,7 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto p-8">
         {cargando ? (
-          <div className="flex justify-center py-40 animate-pulse text-indigo-600 font-black tracking-widest text-[10px] uppercase">Conectando...</div>
+          <div className="flex justify-center py-40 animate-pulse text-indigo-600 font-black tracking-widest text-[10px] uppercase">Cargando...</div>
         ) : (
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
             {filtrados.map(p => (
@@ -158,7 +162,7 @@ export default function App() {
                 <div className="flex justify-between items-start mb-10">
                   <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] bg-indigo-50 px-4 py-2 rounded-xl">{p.categoria}</span>
                   {p.es_verificado && (
-                    <div className="flex items-center gap-1.5 bg-sky-500 px-4 py-2 rounded-full shadow-lg shadow-sky-100">
+                    <div className="flex items-center gap-1.5 bg-sky-500 px-4 py-2 rounded-full shadow-lg">
                       <BadgeCheck size={16} className="text-white" fill="currentColor"/>
                       <span className="text-[10px] font-black text-white uppercase tracking-tighter italic">Oficial</span>
                     </div>
@@ -171,14 +175,19 @@ export default function App() {
                   </div>
                 </div>
                 <p className="text-slate-500 text-[15px] leading-relaxed mb-12 flex-grow font-medium italic border-l-4 border-indigo-50 pl-4">
-                  "{p.descripcion || `Servicios de ${p.categoria} en Concepción.`}"
+                  "{p.descripcion || `Profesional en ${p.categoria}.`}"
                 </p>
                 <div className="flex gap-4 mt-auto">
-                  <a href={`https://wa.me/${p.whatsapp}`} target="_blank" className="flex-[4] bg-[#25D366] hover:bg-[#128C7E] text-white py-5 rounded-[1.8rem] font-black text-[10px] transition-all shadow-xl shadow-green-100 flex items-center justify-center gap-3 active:scale-95 tracking-widest uppercase">
+                  <a 
+                    href={`https://wa.me/${p.whatsapp}`} 
+                    target="_blank" 
+                    onClick={() => registrarClic(p.nombre)}
+                    className="flex-[4] bg-[#25D366] hover:bg-[#128C7E] text-white py-5 rounded-[1.8rem] font-black text-[10px] transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 tracking-widest uppercase"
+                  >
                     <MessageCircle size={22} fill="currentColor" /> WhatsApp
                   </a>
                   <a 
-                    href={p.link_maps ? p.link_maps : `http://google.com/maps/search/${encodeURIComponent(p.nombre + " " + p.zona + " Concepcion")}`} 
+                    href={p.link_maps ? p.link_maps : `https://www.google.com/maps/search/${encodeURIComponent(p.nombre + " " + p.zona + " Concepcion")}`} 
                     target="_blank" 
                     className={`flex-1 py-5 rounded-[1.8rem] transition-all flex items-center justify-center border active:scale-95 ${p.link_maps ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
                   >
@@ -189,7 +198,7 @@ export default function App() {
                 {esAdmin && (
                   <div className="mt-10 pt-8 border-t border-slate-100 flex justify-between items-center bg-slate-50/50 -mx-10 -mb-10 px-10 pb-10 rounded-b-[2.5rem]">
                     <button onClick={() => toggleVerificado(p.id, p.es_verificado)} className={`px-6 py-3 rounded-2xl text-[9px] font-black transition-all ${p.es_verificado ? 'bg-sky-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>
-                      {p.es_verificado ? "OFICIAL" : "VERIFICAR"}
+                      {p.es_verificado ? "VINCULADO" : "VERIFICAR"}
                     </button>
                     <button onClick={() => borrarProfesional(p.id)} className="p-4 bg-white text-red-500 border border-red-50 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm">
                       <Trash2 size={20}/>
@@ -203,9 +212,9 @@ export default function App() {
       </main>
 
       <footer className="py-32 text-center bg-white mt-20 border-t border-slate-100">
-        <button onClick={() => { setVerFormulario(true); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="mb-12 group">
-            <div className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-600 transition-all transform hover:scale-105">
-                REGISTRAR MI NEGOCIO GRATIS
+        <button onClick={() => { setVerFormulario(true); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="mb-16 group inline-block">
+            <div className="bg-slate-900 text-white px-10 py-6 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all transform hover:scale-105 active:scale-95">
+                🚀 REGISTRAR MI NEGOCIO GRATIS
             </div>
         </button>
         <div className="w-20 h-[2px] bg-slate-200 mx-auto rounded-full mb-12 opacity-50"></div>
