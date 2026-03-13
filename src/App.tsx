@@ -18,7 +18,6 @@ export default function App() {
   const [verFormulario, setVerFormulario] = useState(false);
   const [esAdmin, setEsAdmin] = useState(false);
   const [cargando, setCargando] = useState(true);
-  
   const [nuevoPro, setNuevoPro] = useState({ 
     nombre: '', categoria: '', zona: '', descripcion: '', whatsapp: '', link_maps: '' 
   });
@@ -95,19 +94,16 @@ export default function App() {
           
           <form onSubmit={manejarEnvio} className="grid gap-4">
             <input required placeholder="Nombre Comercial" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} />
-            <input required placeholder="Categoría (Ej: Plomero, Abogado)" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
+            <input required placeholder="Categoría" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} />
             <div className="grid grid-cols-2 gap-4">
                 <input required placeholder="Barrio" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} />
                 <input required placeholder="WhatsApp" className="p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} />
             </div>
-            
-            {/* NUEVO CAMPO DE MAPA */}
             <div className="space-y-1">
               <label className="text-[10px] font-black ml-4 uppercase text-slate-400 tracking-widest">Ubicación (Opcional)</label>
-              <input placeholder="Pegá aquí el link de Google Maps" className="w-full p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
+              <input placeholder="Link de Google Maps" className="w-full p-5 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
             </div>
-
-            <textarea required placeholder="Descripción de servicios..." className="p-5 bg-white border border-slate-200 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-none" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
+            <textarea required placeholder="Descripción..." className="p-5 bg-white border border-slate-200 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-none" onChange={e => setNuevoPro({...nuevoPro, descripcion: e.target.value})} />
             <button type="submit" className="bg-indigo-600 text-white py-6 rounded-[2rem] font-black text-sm shadow-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 mt-4">
               <Send size={20}/> PUBLICAR AHORA
             </button>
@@ -132,7 +128,7 @@ export default function App() {
             </button>
           </div>
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase">Conexión<span className="text-indigo-600">Concepción</span></h1>
-          <p className="text-slate-400 text-xl mb-12 font-medium italic italic">La red profesional de la Perla del Norte.</p>
+          <p className="text-slate-400 text-xl mb-12 font-medium italic">La red profesional de la Perla del Norte.</p>
           
           <div className="relative max-w-2xl mx-auto mb-12 group">
             <div className="relative bg-white rounded-[2.2rem] flex items-center p-3 shadow-2xl border border-slate-50 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
@@ -181,12 +177,10 @@ export default function App() {
                   <a href={`https://wa.me/${p.whatsapp}`} target="_blank" className="flex-[4] bg-[#25D366] hover:bg-[#128C7E] text-white py-5 rounded-[1.8rem] font-black text-[10px] transition-all shadow-xl shadow-green-100 flex items-center justify-center gap-3 active:scale-95 tracking-widest uppercase">
                     <MessageCircle size={22} fill="currentColor" /> WhatsApp
                   </a>
-                  {/* LÓGICA DE BOTÓN DE MAPA MEJORADA */}
                   <a 
-                    href={p.link_maps ? p.link_maps : `https://www.google.com/maps/search/${encodeURIComponent(p.nombre + " " + p.zona + " Concepcion")}`} 
+                    href={p.link_maps ? p.link_maps : `http://google.com/maps/search/${encodeURIComponent(p.nombre + " " + p.zona + " Concepcion")}`} 
                     target="_blank" 
                     className={`flex-1 py-5 rounded-[1.8rem] transition-all flex items-center justify-center border active:scale-95 ${p.link_maps ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
-                    title={p.link_maps ? "Ver ubicación exacta" : "Buscar en el mapa"}
                   >
                     <MapPin size={24} />
                   </a>
@@ -208,14 +202,15 @@ export default function App() {
         )}
       </main>
 
-      <footer className="py-32 text-center">
+      <footer className="py-32 text-center bg-white mt-20 border-t border-slate-100">
         <button onClick={() => { setVerFormulario(true); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="mb-12 group">
-            <div className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-700 transition-all transform hover:scale-105">
+            <div className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-600 transition-all transform hover:scale-105">
                 REGISTRAR MI NEGOCIO GRATIS
             </div>
         </button>
-        <p className="text-slate-300 text-[11px] font-black uppercase tracking-[0.6em] mb-4">Concepción · Paraguay</p>
-        <p className="text-slate-200 text-[9px] font-bold uppercase tracking-[0.2em]">© 2026 Developed by Alan Campuzano</p>
+        <div className="w-20 h-[2px] bg-slate-200 mx-auto rounded-full mb-12 opacity-50"></div>
+        <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.6em] mb-4">Concepción · Paraguay</p>
+        <p className="text-slate-300 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 Conexión Concepción · Todos los derechos reservados</p>
       </footer>
     </div>
   );
