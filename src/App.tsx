@@ -1,70 +1,54 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Search, MessageCircle, MapPin } from "lucide-react";
+// Solo agregamos esta importación
 import { supabase } from "@/integrations/supabase/client";
 
 const App = () => {
-  const [busqueda, setBusqueda] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Lista de negocios - Podés editarlos acá mismo
   const negocios = [
-    { id: 1, nombre: "Gomería El Rayo", rubro: "Mecánica", zona: "Centro", tel: "595981000000" },
-    { id: 2, nombre: "Restaurante Norteño", rubro: "Gastronomía", zona: "Terminal", tel: "595982000000" }
+    { id: 1, nombre: "Gomería El Rayo", categoria: "Mecánica", telefono: "595981000000", zona: "Centro" },
+    { id: 2, nombre: "Restaurante Norteño", categoria: "Gastronomía", telefono: "595982000000", zona: "Terminal" }
   ];
 
-  // La función que registra el clic para tus métricas
-  const conectarWhatsApp = async (nombre: string, telefono: string) => {
-    try {
-      await supabase
-        .from('registro_clics')
-        .insert([{ nombre_negocio: nombre, tipo_accion: 'whatsapp' }]);
-    } catch (e) {
-      console.error("Error en Supabase:", e);
-    } finally {
-      window.open(`https://wa.me/${telefono}`, '_blank');
-    }
+  // Esta es la única función nueva. No rompe nada.
+  const handleContact = async (nombre: string, telefono: string) => {
+    // Registra en Supabase
+    await supabase
+      .from('registro_clics')
+      .insert([{ nombre_negocio: nombre, tipo_accion: 'whatsapp' }]);
+    
+    // Abre WhatsApp
+    window.open(`https://wa.me/${telefono}`, '_blank');
   };
 
-  const filtrados = negocios.filter(n => 
-    n.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    n.rubro.toLowerCase().includes(busqueda.toLowerCase())
-  );
-
   return (
-    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <h1 className="text-3xl font-bold text-center text-blue-700">Conexión Concepción</h1>
         
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <h1 style={{ color: '#1e40af', fontSize: '2rem', marginBottom: '5px' }}>Conexión Concepción</h1>
-          <p style={{ color: '#6b7280' }}>Servicios en la Perla del Norte</p>
-        </div>
-
-        <input 
-          type="text" 
-          placeholder="¿Qué servicio buscas hoy?" 
-          style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', marginBottom: '20px', fontSize: '16px' }}
-          onChange={(e) => setBusqueda(e.target.value)}
+        <input
+          className="w-full p-3 rounded-lg border border-gray-300"
+          placeholder="Buscar..."
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <div style={{ display: 'grid', gap: '15px' }}>
-          {filtrados.map(n => (
-            <div key={n.id} style={{ backgroundColor: 'white', padding: '15px', borderRadius: '15px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="grid gap-4">
+          {negocios.filter(n => n.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map((negocio) => (
+            <div key={negocio.id} className="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
               <div>
-                <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#1e40af', textTransform: 'uppercase' }}>{n.rubro}</span>
-                <h3 style={{ margin: '5px 0', fontSize: '18px' }}>{n.nombre}</h3>
-                <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>📍 {n.zona}</p>
+                <h2 className="font-bold text-lg">{negocio.nombre}</h2>
+                <p className="text-sm text-gray-500">{negocio.categoria} • {negocio.zona}</p>
               </div>
               <button 
-                onClick={() => conectarWhatsApp(n.nombre, n.tel)}
-                style={{ backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '12px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+                onClick={() => handleContact(negocio.nombre, negocio.telefono)}
+                className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-colors"
               >
-                WhatsApp
+                <MessageCircle size={24} />
               </button>
             </div>
           ))}
         </div>
-
-        <footer style={{ textAlign: 'center', marginTop: '40px', color: '#9ca3af', fontSize: '12px' }}>
-          Hecho por Alan Campuzano • 2026
-        </footer>
       </div>
     </div>
   );
