@@ -18,7 +18,7 @@ export default function App() {
   const [busqueda, setBusqueda] = useState("");
   const [verFormulario, setVerFormulario] = useState(false);
   const [enviado, setEnviado] = useState(false);
-  const [esAdmin, setEsAdmin] = useState(false);
+  const [esAdmin, setEsAdmin] = useState(false); // Control de botones de borrado/verificado
   const [nuevoPro, setNuevoPro] = useState({ 
     nombre: '', categoria: '', zona: '', descripcion: '', whatsapp: '', link_maps: '', icono: 'zap' 
   });
@@ -28,6 +28,19 @@ export default function App() {
   async function fetchProfesionales() {
     const { data, error } = await supabase.from('profesionales').select('*').order('created_at', { ascending: false });
     if (!error) setProfesionales(data || []);
+  }
+
+  // Funciones de Administrador
+  async function borrarProfesional(id: string) {
+    if (confirm("¿Estás seguro de eliminar este registro?")) {
+      const { error } = await supabase.from('profesionales').delete().eq('id', id);
+      if (!error) fetchProfesionales();
+    }
+  }
+
+  async function toggleVerificado(id: string, estadoActual: boolean) {
+    const { error } = await supabase.from('profesionales').update({ es_verificado: !estadoActual }).eq('id', id);
+    if (!error) fetchProfesionales();
   }
 
   async function registrarClic(id: string, whatsapp: string) {
@@ -59,8 +72,8 @@ export default function App() {
         <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20">
           <Icons.Check size={32} strokeWidth={3} />
         </div>
-        <h2 className="text-2xl font-black tracking-tight uppercase mb-2 text-center">Datos Recibidos</h2>
-        <p className="text-slate-500 tracking-[0.2em] text-[10px] font-bold text-center italic">PROCESANDO VERIFICACIÓN</p>
+        <h2 className="text-2xl font-black tracking-tight uppercase mb-2">Datos Recibidos</h2>
+        <p className="text-slate-500 tracking-[0.2em] text-[10px] font-bold italic">VERIFICANDO...</p>
       </div>
     );
   }
@@ -69,17 +82,17 @@ export default function App() {
     return (
       <div className="min-h-screen bg-white p-6 md:p-12 animate-in slide-in-from-bottom-8 duration-500">
         <button onClick={() => setVerFormulario(false)} className="group flex items-center gap-3 text-slate-900 font-black text-[10px] tracking-widest uppercase mb-12">
-          <div className="p-2 bg-slate-100 rounded-full"><Icons.ArrowLeft size={14} /></div> Volver al Inicio
+          <div className="p-2 bg-slate-100 rounded-full"><Icons.ArrowLeft size={14} /></div> Volver
         </button>
         <div className="max-w-xl mx-auto">
-          <h2 className="text-4xl font-black tracking-tighter leading-tight mb-8 uppercase italic">Registrar <br/><span className="text-indigo-600">Nuevo Negocio</span></h2>
+          <h2 className="text-4xl font-black tracking-tighter leading-tight mb-8 uppercase italic">Suma tu <span className="text-indigo-600">Negocio</span></h2>
           <form onSubmit={crearProfesional} className="grid grid-cols-1 gap-4">
             <input type="text" placeholder="NOMBRE DEL NEGOCIO" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} required />
-            <input type="text" placeholder="RUBRO (EJ: PLOMERO, ABOGADO)" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} required />
-            <input type="text" placeholder="WHATSAPP (CON CÓDIGO DE PAÍS)" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} required />
+            <input type="text" placeholder="RUBRO (EJ: MECÁNICO)" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} required />
+            <input type="text" placeholder="WHATSAPP (5959...)" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} required />
             <input type="text" placeholder="ZONA / BARRIO" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} required />
-            <input type="text" placeholder="LINK DE UBICACIÓN (MAPS)" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
-            <button type="submit" className="bg-slate-900 text-white p-6 rounded-xl font-black text-xs uppercase tracking-[0.4em] hover:bg-indigo-600 transition-all active:scale-95 shadow-xl mt-4">Confirmar Registro</button>
+            <input type="text" placeholder="LINK DE MAPS (OPCIONAL)" className="p-5 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-indigo-100 font-bold text-sm" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
+            <button type="submit" className="bg-slate-900 text-white p-6 rounded-xl font-black text-xs uppercase tracking-[0.4em] hover:bg-indigo-600 transition-all shadow-xl mt-4">Enviar Registro</button>
           </form>
         </div>
       </div>
@@ -89,9 +102,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F9FAFB] text-[#1a1a1a] font-sans selection:bg-indigo-600 selection:text-white">
       
-      {/* HEADER COMPACTO Y ELEGANTE */}
       <header className="px-6 py-12 md:py-20 flex flex-col items-center text-center bg-white border-b border-slate-100">
-        <div className="mb-6 relative group cursor-pointer">
+        <div className="mb-6 relative group cursor-pointer" onClick={() => setEsAdmin(!esAdmin)}>
           <div className="w-20 h-20 bg-slate-900 rounded-[28px] flex items-center justify-center shadow-xl transition-all duration-700 group-hover:rotate-[360deg]">
             <span className="text-white font-black text-3xl tracking-tighter">CC</span>
           </div>
@@ -107,34 +119,55 @@ export default function App() {
           Directorio Profesional Local • 2026
         </p>
 
-        <button onClick={() => setEsAdmin(!esAdmin)} className="mt-8 text-[8px] font-black px-4 py-1.5 rounded-full border border-slate-200 text-slate-300 uppercase tracking-widest hover:border-black hover:text-black transition-all">
-          {esAdmin ? 'SISTEMA ACTIVO' : 'DIRECTORIO VERIFICADO'}
+        {/* El botón de verificado ahora sirve para activar el modo admin si lo tocas */}
+        <button 
+          onClick={() => setEsAdmin(!esAdmin)} 
+          className={`mt-8 text-[8px] font-black px-4 py-1.5 rounded-full border transition-all ${esAdmin ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-200 text-slate-300 uppercase tracking-widest'}`}
+        >
+          {esAdmin ? 'MODO ADMINISTRADOR' : 'DIRECTORIO VERIFICADO'}
         </button>
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* BUSCADOR REFINADO */}
         <div className="relative mb-16">
           <input 
             type="text" 
             placeholder="¿A qué profesional buscas?" 
-            className="w-full bg-white border border-slate-100 rounded-2xl py-6 pl-14 pr-6 text-xl font-bold shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-100 transition-all placeholder:text-slate-200"
+            className="w-full bg-white border border-slate-100 rounded-2xl py-6 pl-14 pr-6 text-xl font-bold shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-100 transition-all"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
           <Icons.Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
         </div>
 
-        {/* LISTADO UNIFORME */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filtrados.map((p) => (
-            <div key={p.id} className="group bg-white p-7 rounded-[35px] border border-slate-50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col justify-between">
+            <div key={p.id} className="group bg-white p-7 rounded-[35px] border border-slate-50 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden">
+              
+              {/* BOTONES DE ADMIN (SOLO SE VEN SI esAdmin ES TRUE) */}
+              {esAdmin && (
+                <div className="absolute top-4 right-4 flex gap-2 z-20 animate-in fade-in slide-in-from-top-2">
+                  <button 
+                    onClick={() => toggleVerificado(p.id, p.es_verificado)}
+                    className={`p-2 rounded-lg border transition-all ${p.es_verificado ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-slate-200 text-slate-400'}`}
+                  >
+                    <Icons.BadgeCheck size={16} />
+                  </button>
+                  <button 
+                    onClick={() => borrarProfesional(p.id)}
+                    className="p-2 bg-white border border-red-100 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                  >
+                    <Icons.Trash2 size={16} />
+                  </button>
+                </div>
+              )}
+
               <div>
                 <div className="flex justify-between items-start mb-6">
-                  <div className="w-16 h-16 bg-slate-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+                  <div className="w-16 h-16 bg-slate-50 text-indigo-600 rounded-2xl flex items-center justify-center">
                     <IconoDinamico nombre={p.icono || 'zap'} size={28} />
                   </div>
-                  {p.es_verificado && <Icons.BadgeCheck size={24} className="text-indigo-500 fill-indigo-50" />}
+                  {p.es_verificado && !esAdmin && <Icons.BadgeCheck size={24} className="text-indigo-500 fill-indigo-50" />}
                 </div>
                 
                 <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase mb-1">{p.nombre}</h2>
@@ -160,7 +193,7 @@ export default function App() {
                 </button>
                 
                 {p.link_maps && (
-                  <a href={p.link_maps} target="_blank" className="w-16 h-16 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50 transition-all duration-500">
+                  <a href={p.link_maps} target="_blank" className="w-16 h-16 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 hover:text-indigo-600 transition-all duration-500">
                     <Icons.MapPinned size={20} />
                   </a>
                 )}
@@ -171,11 +204,11 @@ export default function App() {
       </main>
 
       <footer className="py-24 px-6 text-center bg-white border-t border-slate-100">
-        <h3 className="text-3xl font-black tracking-tight uppercase mb-8">Suma tu negocio a <span className="text-indigo-600 italic">Conexión</span></h3>
+        <h3 className="text-3xl font-black tracking-tight uppercase mb-8">Suma tu negocio</h3>
         <button onClick={() => { setVerFormulario(true); window.scrollTo(0,0); }} className="bg-slate-900 text-white px-10 py-5 rounded-xl font-black text-[10px] uppercase tracking-[0.4em] shadow-xl hover:bg-indigo-600 transition-all">
           Registrar Ahora
         </button>
-        <div className="mt-20 opacity-20 font-black text-[9px] tracking-[0.8em] uppercase">
+        <div className="mt-20 opacity-20 font-black text-[9px] tracking-[0.8em] uppercase text-center w-full">
           Concepción • Paraguay
         </div>
       </footer>
