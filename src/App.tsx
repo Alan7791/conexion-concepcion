@@ -46,7 +46,6 @@ export default function App() {
 
   async function crearProfesional(e: React.FormEvent) {
     e.preventDefault();
-    // Al insertar, el icono por defecto es 'zap', luego tú lo cambias en la base de datos
     const { error } = await supabase.from('profesionales').insert([nuevoPro]);
     if (!error) {
       setVerFormulario(false);
@@ -69,16 +68,13 @@ export default function App() {
         </button>
         <div className="max-w-md mx-auto text-center">
           <h2 className="text-3xl font-black mb-2 uppercase tracking-tighter">Sumar mi <span className="text-indigo-600">Negocio</span></h2>
-          <p className="text-slate-400 mb-8 text-sm">Completa los datos para aparecer en el directorio.</p>
+          <p className="text-slate-400 mb-8 text-sm">El administrador asignará tu icono profesional.</p>
           <form onSubmit={crearProfesional} className="space-y-4">
-            <input type="text" placeholder="Nombre del Negocio" className="w-full p-5 bg-slate-50 rounded-[20px] border-none focus:ring-2 focus:ring-indigo-100 outline-none" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} required />
-            <input type="text" placeholder="Categoría (Ej: Plomero, Abogado)" className="w-full p-5 bg-slate-50 rounded-[20px] border-none focus:ring-2 focus:ring-indigo-100 outline-none" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} required />
-            <input type="text" placeholder="Barrio de Concepción" className="w-full p-5 bg-slate-50 rounded-[20px] border-none focus:ring-2 focus:ring-indigo-100 outline-none" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} required />
-            <input type="text" placeholder="WhatsApp (Ej: 595983...)" className="w-full p-5 bg-slate-50 rounded-[20px] border-none focus:ring-2 focus:ring-indigo-100 outline-none" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} required />
-            <input type="text" placeholder="Link de Google Maps (Ubicación)" className="w-full p-5 bg-slate-50 rounded-[20px] border-none focus:ring-2 focus:ring-indigo-100 outline-none" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
-            
-            {/* EL CAMPO DE ICONO SE HA ELIMINADO PARA EL CLIENTE */}
-
+            <input type="text" placeholder="Nombre del Negocio" className="w-full p-5 bg-slate-50 rounded-[20px] border-none outline-none" onChange={e => setNuevoPro({...nuevoPro, nombre: e.target.value})} required />
+            <input type="text" placeholder="Categoría (Ej: Plomero, Abogado)" className="w-full p-5 bg-slate-50 rounded-[20px] border-none outline-none" onChange={e => setNuevoPro({...nuevoPro, categoria: e.target.value})} required />
+            <input type="text" placeholder="Barrio de Concepción" className="w-full p-5 bg-slate-50 rounded-[20px] border-none outline-none" onChange={e => setNuevoPro({...nuevoPro, zona: e.target.value})} required />
+            <input type="text" placeholder="WhatsApp (Ej: 595983...)" className="w-full p-5 bg-slate-50 rounded-[20px] border-none outline-none" onChange={e => setNuevoPro({...nuevoPro, whatsapp: e.target.value})} required />
+            <input type="text" placeholder="Link de Google Maps (Ubicación)" className="w-full p-5 bg-slate-50 rounded-[20px] border-none outline-none" onChange={e => setNuevoPro({...nuevoPro, link_maps: e.target.value})} />
             <button type="submit" className="w-full bg-slate-900 text-white p-6 rounded-[25px] font-black uppercase tracking-widest shadow-xl hover:bg-indigo-600 transition-all mt-4">
               Enviar Solicitud
             </button>
@@ -90,77 +86,77 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] text-slate-900 font-sans">
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 px-6 py-4">
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 px-6 py-4 text-center">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-100">
-              <Icons.Zap size={20} className="text-white fill-white" />
-            </div>
-            <h1 className="font-black text-xl tracking-tighter uppercase italic">Conexión <span className="text-indigo-600 font-black">Concepción</span></h1>
+          <div className="flex items-center gap-2">
+            <Icons.Zap size={24} className="text-indigo-600 fill-indigo-600" />
+            <h1 className="font-black text-xl tracking-tighter uppercase italic">Conexión <span className="text-indigo-600">Concepción</span></h1>
           </div>
-          <button onClick={() => setEsAdmin(!esAdmin)} className={`text-[10px] font-black px-4 py-2 rounded-full border transition-all ${esAdmin ? 'bg-red-50 border-red-100 text-red-500' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
-            MODO: {esAdmin ? 'ADMINISTRADOR' : 'VISUALIZADOR'}
+          <button onClick={() => setEsAdmin(!esAdmin)} className="text-[9px] font-black px-3 py-1.5 rounded-full border border-slate-200 text-slate-400 uppercase">
+             {esAdmin ? 'Modo Admin ON' : 'Visor'}
           </button>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="relative mb-12 group">
-          <Icons.Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={20}/>
+      <main className="max-w-2xl mx-auto px-6 py-10">
+        <div className="relative mb-10">
+          <Icons.Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={20}/>
           <input 
             type="text" 
-            placeholder="¿Qué servicio buscas hoy?" 
-            className="w-full pl-16 pr-8 py-6 bg-white border-none rounded-[30px] shadow-2xl shadow-indigo-100/20 text-lg outline-none"
+            placeholder="Buscar profesional en Concepción..." 
+            className="w-full pl-16 pr-8 py-5 bg-white border-none rounded-[25px] shadow-2xl shadow-indigo-100/30 text-lg outline-none"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {filtrados.map((p) => (
-            <div key={p.id} className="bg-white rounded-[40px] p-8 shadow-sm border border-slate-50 hover:shadow-xl hover:shadow-indigo-50 transition-all duration-300">
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row items-center gap-6">
-                  {/* ICONO DINÁMICO (Tú lo controlas desde Supabase) */}
-                  <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-[30px] flex items-center justify-center shrink-0">
-                    <IconoDinamico nombre={p.icono || 'zap'} size={38} />
+            <div key={p.id} className="bg-white rounded-[35px] p-7 shadow-sm border border-slate-50 hover:shadow-md transition-all">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+                <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+                  <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-[22px] flex items-center justify-center shrink-0 shadow-inner">
+                    <IconoDinamico nombre={p.icono || 'zap'} size={32} />
                   </div>
                   <div>
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                      <h2 className="font-black text-2xl text-slate-800 tracking-tight">{p.nombre}</h2>
-                      {p.es_verificado && <Icons.BadgeCheck size={20} className="text-indigo-500 fill-indigo-50" />}
-                    </div>
-                    <p className="text-indigo-600 text-xs font-black uppercase tracking-[0.2em] mb-3">{p.categoria}</p>
-                    <div className="flex items-center justify-center sm:justify-start gap-4 text-slate-500 font-bold text-[11px] uppercase">
-                      <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-                        <Icons.MapPin size={12} className="text-slate-400"/> {p.zona}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-indigo-400">
-                        <Icons.Zap size={12} className="fill-indigo-400"/> {p.clics || 0} visitas
-                      </div>
+                    <h2 className="font-black text-xl text-slate-800 flex items-center gap-2 justify-center sm:justify-start">
+                      {p.nombre}
+                      {p.es_verificado && <Icons.BadgeCheck size={18} className="text-indigo-500 fill-indigo-50" />}
+                    </h2>
+                    <p className="text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-2">{p.categoria}</p>
+                    <div className="flex items-center justify-center sm:justify-start gap-3">
+                        <span className="bg-slate-50 text-slate-400 text-[10px] font-bold px-2 py-1 rounded-md uppercase border border-slate-100">
+                          {p.zona}
+                        </span>
+                        <span className="text-indigo-300 text-[10px] font-bold uppercase flex items-center gap-1">
+                          <Icons.Zap size={10} className="fill-indigo-300"/> {p.clics || 0} clics
+                        </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3 w-full sm:w-auto">
+                <div className="flex gap-2 w-full sm:w-auto">
+                  {/* BOTÓN WHATSAPP */}
                   <button 
                     onClick={() => registrarClic(p.id, p.whatsapp)}
-                    className="flex-1 sm:flex-none bg-slate-900 text-white px-8 py-5 rounded-[22px] hover:bg-indigo-600 transition-all flex items-center justify-center shadow-lg"
+                    className="flex-1 sm:flex-none bg-slate-900 text-white px-8 py-4 rounded-[18px] hover:bg-indigo-600 transition-all flex items-center justify-center"
                   >
-                    <Icons.MessageCircle size={26} />
+                    <Icons.MessageCircle size={22} />
                   </button>
                   
-                  {p.link_maps && (
-                    <a 
-                      href={p.link_maps} 
-                      target="_blank" 
-                      className="px-6 bg-white border-2 border-slate-100 text-slate-400 rounded-[22px] hover:border-indigo-200 hover:text-indigo-500 transition-all flex items-center justify-center shadow-sm"
-                      title="Abrir ubicación en Google Maps"
-                    >
-                      {/* ICONO DE MAPPIN QUE REEMPLAZA AL ANTERIOR */}
-                      <Icons.MapPinned size={26} />
-                    </a>
-                  )}
+                  {/* BOTÓN MAPS DINÁMICO */}
+                  <a 
+                    href={p.link_maps || "#"} 
+                    target={p.link_maps ? "_blank" : "_self"}
+                    onClick={(e) => !p.link_maps && e.preventDefault()}
+                    className={`px-5 py-4 rounded-[18px] border-2 transition-all flex items-center justify-center shadow-sm ${
+                      p.link_maps 
+                      ? "bg-white border-indigo-100 text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50" 
+                      : "bg-slate-50 border-slate-100 text-slate-200 cursor-not-allowed"
+                    }`}
+                  >
+                    <Icons.MapPinned size={22} />
+                  </a>
                 </div>
               </div>
             </div>
@@ -169,10 +165,9 @@ export default function App() {
       </main>
 
       <footer className="py-20 text-center">
-        <button onClick={() => setVerFormulario(true)} className="mb-12 bg-white text-slate-900 border-2 border-slate-100 px-10 py-5 rounded-[25px] font-black text-xs uppercase tracking-[0.2em] shadow-sm hover:border-indigo-500 transition-all">
+        <button onClick={() => setVerFormulario(true)} className="bg-slate-900 text-white px-10 py-5 rounded-[22px] font-black text-[10px] uppercase tracking-[0.2em] shadow-lg hover:bg-indigo-600 transition-all">
           Registrar nuevo negocio
         </button>
-        <p className="text-slate-300 text-[10px] font-black uppercase tracking-[0.2em]">Conexión Concepción &copy; 2026</p>
       </footer>
     </div>
   );
