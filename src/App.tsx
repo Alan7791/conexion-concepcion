@@ -24,7 +24,7 @@ export default function App() {
   });
 
   // --- CONFIGURACIÓN DE SEGURIDAD ---
-  const CLAVE_MAESTRA = "Concepcion2026"; // <--- CAMBIA ESTA CLAVE POR LA QUE TU QUIERAS
+  const CLAVE_MAESTRA = "Miclavesecreta77"; // <--- CAMBIA ESTA CLAVE POR LA QUE TU QUIERAS
 
   const activarAdmin = () => {
     if (esAdmin) {
