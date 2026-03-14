@@ -86,46 +86,61 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] text-slate-900 font-sans">
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 px-6 py-4 text-center">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Icons.Zap size={24} className="text-indigo-600 fill-indigo-600" />
-            <h1 className="font-black text-xl tracking-tighter uppercase italic">Conexión <span className="text-indigo-600">Concepción</span></h1>
+      {/* HEADER GRANDE Y PROFESIONAL */}
+      <header className="bg-white border-b border-slate-100 px-6 py-10 text-center shadow-sm">
+        <div className="max-w-5xl mx-auto flex flex-col items-center">
+          {/* LOGO CC */}
+          <div className="mb-4 relative">
+             <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl rotate-3 transform">
+                <span className="text-white font-black text-2xl tracking-tighter uppercase -rotate-3">CC</span>
+             </div>
+             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-yellow-400 rounded-lg flex items-center justify-center border-4 border-white">
+                <Icons.Zap size={10} className="text-white fill-white" />
+             </div>
           </div>
-          <button onClick={() => setEsAdmin(!esAdmin)} className="text-[9px] font-black px-3 py-1.5 rounded-full border border-slate-200 text-slate-400 uppercase">
-             {esAdmin ? 'Modo Admin ON' : 'Visor'}
+
+          <h1 className="font-black text-4xl tracking-tighter uppercase mb-2 italic">
+            Conexión <span className="text-indigo-600">Concepción</span>
+          </h1>
+          <p className="text-slate-400 font-bold text-sm uppercase tracking-[0.2em] max-w-xs leading-relaxed">
+            Tu Directorio Local de Profesionales y Servicios
+          </p>
+
+          <button onClick={() => setEsAdmin(!esAdmin)} className="mt-6 text-[9px] font-black px-4 py-2 rounded-full border border-slate-200 text-slate-400 uppercase tracking-widest hover:bg-slate-50 transition-all">
+             {esAdmin ? 'Panel Admin Activo' : 'Acceso Limitado'}
           </button>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-10">
-        <div className="relative mb-10">
+        {/* BUSCADOR */}
+        <div className="relative mb-12">
           <Icons.Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={20}/>
           <input 
             type="text" 
-            placeholder="Buscar profesional en Concepción..." 
-            className="w-full pl-16 pr-8 py-5 bg-white border-none rounded-[25px] shadow-2xl shadow-indigo-100/30 text-lg outline-none"
+            placeholder="Buscar por rubro o nombre..." 
+            className="w-full pl-16 pr-8 py-6 bg-white border-none rounded-[30px] shadow-2xl shadow-indigo-100/40 text-lg outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-6">
           {filtrados.map((p) => (
-            <div key={p.id} className="bg-white rounded-[35px] p-7 shadow-sm border border-slate-50 hover:shadow-md transition-all">
+            <div key={p.id} className="bg-white rounded-[40px] p-8 shadow-sm border border-slate-50 hover:shadow-xl transition-all duration-300">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-                  <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-[22px] flex items-center justify-center shrink-0 shadow-inner">
-                    <IconoDinamico nombre={p.icono || 'zap'} size={32} />
+                  <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-[30px] flex items-center justify-center shrink-0">
+                    <IconoDinamico nombre={p.icono || 'zap'} size={38} />
                   </div>
                   <div>
-                    <h2 className="font-black text-xl text-slate-800 flex items-center gap-2 justify-center sm:justify-start">
+                    <h2 className="font-black text-2xl text-slate-800 tracking-tight flex items-center justify-center sm:justify-start gap-2">
                       {p.nombre}
-                      {p.es_verificado && <Icons.BadgeCheck size={18} className="text-indigo-500 fill-indigo-50" />}
+                      {p.es_verificado && <Icons.BadgeCheck size={20} className="text-indigo-500 fill-indigo-50" />}
                     </h2>
-                    <p className="text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-2">{p.categoria}</p>
+                    <p className="text-indigo-600 text-xs font-black uppercase tracking-[0.2em] mb-3">{p.categoria}</p>
                     <div className="flex items-center justify-center sm:justify-start gap-3">
-                        <span className="bg-slate-50 text-slate-400 text-[10px] font-bold px-2 py-1 rounded-md uppercase border border-slate-100">
+                        <span className="bg-slate-50 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-full border border-slate-100 uppercase">
                           {p.zona}
                         </span>
                         <span className="text-indigo-300 text-[10px] font-bold uppercase flex items-center gap-1">
@@ -136,12 +151,12 @@ export default function App() {
                 </div>
 
                 <div className="flex gap-2 w-full sm:w-auto">
-                  {/* BOTÓN WHATSAPP */}
+                  {/* BOTÓN WHATSAPP ESTILO OFICIAL */}
                   <button 
                     onClick={() => registrarClic(p.id, p.whatsapp)}
-                    className="flex-1 sm:flex-none bg-slate-900 text-white px-8 py-4 rounded-[18px] hover:bg-indigo-600 transition-all flex items-center justify-center"
+                    className="flex-1 sm:flex-none bg-[#25D366] text-white px-8 py-5 rounded-[22px] hover:bg-[#128C7E] transition-all flex items-center justify-center shadow-lg shadow-green-100 active:scale-95"
                   >
-                    <Icons.MessageCircle size={22} />
+                    <Icons.MessageCircle size={28} className="fill-white/20" />
                   </button>
                   
                   {/* BOTÓN MAPS DINÁMICO */}
@@ -149,13 +164,13 @@ export default function App() {
                     href={p.link_maps || "#"} 
                     target={p.link_maps ? "_blank" : "_self"}
                     onClick={(e) => !p.link_maps && e.preventDefault()}
-                    className={`px-5 py-4 rounded-[18px] border-2 transition-all flex items-center justify-center shadow-sm ${
+                    className={`px-6 py-5 rounded-[22px] border-2 transition-all flex items-center justify-center ${
                       p.link_maps 
-                      ? "bg-white border-indigo-100 text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50" 
+                      ? "bg-white border-indigo-100 text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50 shadow-sm" 
                       : "bg-slate-50 border-slate-100 text-slate-200 cursor-not-allowed"
                     }`}
                   >
-                    <Icons.MapPinned size={22} />
+                    <Icons.MapPinned size={26} />
                   </a>
                 </div>
               </div>
@@ -165,9 +180,12 @@ export default function App() {
       </main>
 
       <footer className="py-20 text-center">
-        <button onClick={() => setVerFormulario(true)} className="bg-slate-900 text-white px-10 py-5 rounded-[22px] font-black text-[10px] uppercase tracking-[0.2em] shadow-lg hover:bg-indigo-600 transition-all">
-          Registrar nuevo negocio
+        <button onClick={() => setVerFormulario(true)} className="bg-slate-900 text-white px-12 py-6 rounded-[28px] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-indigo-600 hover:-translate-y-1 transition-all">
+          Registrar Negocio
         </button>
+        <div className="mt-16 opacity-20 font-black text-[10px] tracking-[0.5em] uppercase">
+          Conexión Concepción • Paraguay
+        </div>
       </footer>
     </div>
   );
